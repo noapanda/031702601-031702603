@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta http-equiv=content-type content="text/html;charset=GBK">
+	<title>学术家族树</title>
+	<link rel="stylesheet" type="text/css" href="../../themes/metro/easyui.css">
+	<script type="text/javascript" src="../../jquery.min.js"></script>
+	<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+
+	<style>
+    textarea {
+        -webkit-appearance: textarea;
+        width:600px;
+        height:300px;
+        style=background-attachment: fixed; background-image: url("https://c-ssl.duitang.com/uploads/item/201907/10/20190710163248_4LmcH.thumb.700_0.jpeg");
+        -webkit-rtl-ordering: logical;
+        flex-direction: column;
+        resize: auto;
+        cursor: text;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        border-width: 2px;
+        border-style: solid;
+        border-color: initial;
+        border-image: initial;
+        padding: 12px;
+    }
+    </style><!-- 输入框格式 -->
+
+</head>
+<body background="https://c-ssl.duitang.com/uploads/item/201710/04/20171004180050_4Bz2Z.thumb.700_0.jpeg"><!-- 网页背景 -->
+     <div id='panel' style='height:720px;overflow:auto'> <!-- 实现网页页面滚动条 -->
+     <textarea id="dataId">导师：张三
+2016级博士生：李四
+2015级本科生：王五、启动
+2013级硕士生：李六
+
+导师：新人
+2014级博士生：莉莉
+2016级本科生：晓东</textarea>
+    <div><button id=' begin' style="height: 50px;width: 100px; font-size: 20px; background: #73C5EE" onclick="btnClick()">建立树</button></div>
+
+    <script type="text/javascript">
+
+	$(function(){
+		
+		//createTree();
+		
+	});
+	
+	function btnClick(){//按钮点击事件
+		var getData = $("#dataId").val();//获取输入的文本数据
+		getData = getData.split(" ").join("");//替换所有空格
+		var root = {"text":"师门树",id:"1",children:[]}//创建根节点
+		
+		var arr = getData.split("\n");//获取每行数据
+		
+		var indexValue = 0;
+		arr.forEach(function(data){//循环每一行数据
+			if(data==""||data==null){
+				indexValue++;
+				return;
+			}
+			if(data.indexOf("导师：")>=0){//获取导师数据
+				var index = data.indexOf("：");
+				var pNodeData = data.substring(0,index);
+				var pNode = createNode(pNodeData);//创建节点
+				
+				data = data.substring(index+1,data.length);//获取导师名字
+				var subArr = data.split("、");
+				subArr.forEach(function(subData){
+					var node = createNode(subData);
+					pNode.children.push(node);
+				})
+				 
+				root.children.push(pNode);
+			}
+			
+			if(data.indexOf("级博士生：")>=0||data.indexOf("级硕士生：")>=0||data.indexOf("级本科生：")>=0){//获取本科生数据
+				var index = data.indexOf("：");
+				var pNodeData = data.substring(0,index);//获取数据
+				
+				var index2 = pNodeData.indexOf("级");
+				
+				var a = pNodeData.substring(0,index2+1);//获取级数
+				var b = data.substring(index2+1,pNodeData.length)//获取博士生or硕士生or本科生
+				
+				var aNode = createNode(a);
+				var bNode = createNode(b);
+				
+				data = data.substring(index+1,data.length);//获取学生
+				var subArr = data.split("、");
+				subArr.forEach(function(subData){
+					var node = createNode(subData);
+					aNode.children.push(node);
+				})
+				
+				bNode.children.push(aNode);
+				
+				if(root.children.length>0){
+					root.children[indexValue].children[0].children.push(bNode);
+				}else{
+					root.children.push(pNode);
+				}//添加子节点
+				
+				
+			}
+			
+		})
+		
+		
+		var tree = new Array();
+		tree.push(root);
+		createTree(tree);//创建树
+	}
+	
+	function createNode(text){//创建节点数据
+		return {text:text,children:[]}
+	}
+	
+	function createTree(data){
+		
+		$('#tt').tree({
+			lines:true,//是否显示树线  
+			data:data
+		});
+	}
+	
+    </script>
+
+	<div class="easyui-navpanel" style="padding:100px;height:1000px;">
+					<header>
+						<div class="m-toolbar">
+							<div class="m-title"></div>
+						</div>
+					</header>
+				
+		<h2>创建树</h2>
+		<div style="margin:1px 0;"></div>
+		<div class="easyui-panel" style="padding:50px;height:900px;">
+			<ul class="easyui-tree" id="tt"></ul>
+		</div>
+					
+	</div>
+</body>
+</html>
